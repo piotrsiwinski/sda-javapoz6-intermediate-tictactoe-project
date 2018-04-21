@@ -49,3 +49,6 @@ fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
+client/target/
+common/target/
+server/target/
