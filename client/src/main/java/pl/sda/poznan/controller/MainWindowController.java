@@ -147,6 +147,29 @@ public class MainWindowController {
                 });
                 break;
               }
+              case MessageHeaders.WINNER: {
+                Platform.runLater(() -> {
+                  Alert alert = new Alert(AlertType.INFORMATION);
+                  alert.setTitle("Wygrales");
+                  alert.setContentText("Gratulacje");
+                  alert.showAndWait();
+                  this.gameBoardGridPane.setDisable(true);
+                  this.gameBoardGridPane.setVisible(false);
+                });
+                break;
+              }
+              case MessageHeaders.GAME_LOST: {
+                Platform.runLater(() -> {
+                  Alert alert = new Alert(AlertType.ERROR);
+                  alert.setTitle("Przegrales");
+                  alert.setContentText("Wygral przeciwnik");
+                  alert.showAndWait();
+                  this.gameBoardGridPane.setDisable(true);
+                  this.gameBoardGridPane.setVisible(false);
+                });
+                break;
+              }
+
             }
           } catch (ClassNotFoundException e) {
             e.printStackTrace();
