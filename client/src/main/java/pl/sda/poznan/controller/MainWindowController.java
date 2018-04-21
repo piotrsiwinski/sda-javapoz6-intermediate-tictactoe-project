@@ -18,6 +18,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import pl.sda.poznan.Message;
 import pl.sda.poznan.MessageHeaders;
+import pl.sda.poznan.PlayerConstants;
 import pl.sda.poznan.Transmission;
 import pl.sda.poznan.util.ResourceLoaderUtils;
 import pl.sda.poznan.viewmodel.ConnectionDialogViewModel;
@@ -28,6 +29,7 @@ public class MainWindowController {
   private Transmission transmission;
   @FXML
   private Label logTextArea;
+  private Character playerSign;
 
   public void handleClick(MouseEvent mouseEvent) {
     Label source = (Label) mouseEvent.getSource();
@@ -88,16 +90,20 @@ public class MainWindowController {
 
             switch (message.getHeader()) {
               case MessageHeaders.WAITING_FOR_SECOND_CLIENT: {
-                Platform.runLater(() -> this.logTextArea
-                    .setText(logTextArea.getText() + "Czekam na drugiego gracza\n"));
+                appendToLogLabel("Czekam na drugiego gracza");
                 transmission.sendObject(Message.builder()
                     .header(MessageHeaders.NOTIFY_ON_SECOND_CLIENT)
                     .build());
                 break;
               }
               case MessageHeaders.STARTING_GAME: {
-                Platform.runLater(() -> this.logTextArea
-                    .setText(logTextArea.getText() + "Gra sie rozpoczyna\n"));
+                playerSign = message.getPlayerSign();
+                appendToLogLabel("Gra sie rozpoczyna");
+                if (playerSign.equals(message.getData().charAt(0))) {
+                  appendToLogLabel("Twoja kolej");
+                } else {
+                  appendToLogLabel("Kolej przeciwnika");
+                }
                 break;
               }
             }
@@ -119,6 +125,10 @@ public class MainWindowController {
       }
     });
     clientThread.start();
+  }
+
+  private void appendToLogLabel(String message) {
+    Platform.runLater(() -> this.logTextArea.setText(logTextArea.getText() + message + "\n"));
   }
 
 }
