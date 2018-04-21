@@ -1,6 +1,7 @@
 package pl.sda.poznan;
 
 import pl.sda.poznan.model.Game;
+import pl.sda.poznan.model.GameStatus;
 
 public class MessageRequestListener implements RequestListener {
 
@@ -43,11 +44,30 @@ public class MessageRequestListener implements RequestListener {
               .data(PlayerConstants.X_PLAYER_SIGN.toString())
               .build();
         }
+        case MessageHeaders.MOVE: {
+          Message message = handleGameStatus(request);
+          game.notify();
+          return message;
+        }
       }
       return Message.builder()
           .header("Hello")
           .data("World")
           .build();
+    }
+  }
+
+  private Message handleGameStatus(Message request) {
+    GameStatus gameStatus = game.makeMove(request.getData(), request.getPlayerSign());
+    switch (gameStatus){
+      case CORRECT_MOVE:
+        return Message.builder()
+            .header(MessageHeaders.CORRECT_MOVE)
+            .build();
+      case WINNER:
+        return Message.builder()
+            .header(MessageHeaders.WINNER)
+            .build();
     }
   }
 }
