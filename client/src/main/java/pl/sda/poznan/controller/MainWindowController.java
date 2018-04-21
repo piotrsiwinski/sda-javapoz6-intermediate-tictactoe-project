@@ -16,6 +16,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import pl.sda.poznan.Message;
 import pl.sda.poznan.MessageHeaders;
 import pl.sda.poznan.PlayerConstants;
@@ -31,9 +32,23 @@ public class MainWindowController {
   private Label logTextArea;
   private Character playerSign;
 
+  @FXML
+  private GridPane gameBoardGridPane;
+
   public void handleClick(MouseEvent mouseEvent) {
     Label source = (Label) mouseEvent.getSource();
-    System.out.println(source.getId());
+    source.setText(playerSign.toString());
+    try {
+      transmission.sendObject(Message.builder()
+          .header(MessageHeaders.MOVE)
+          .data(source.getId())
+          .playerSign(playerSign)
+          .build());
+      appendToLogLabel("Kolej przeciwnika");
+      gameBoardGridPane.setDisable(true);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -101,6 +116,7 @@ public class MainWindowController {
                 appendToLogLabel("Gra sie rozpoczyna");
                 if (playerSign.equals(message.getData().charAt(0))) {
                   appendToLogLabel("Twoja kolej");
+                  gameBoardGridPane.setDisable(false);
                 } else {
                   appendToLogLabel("Kolej przeciwnika");
                 }

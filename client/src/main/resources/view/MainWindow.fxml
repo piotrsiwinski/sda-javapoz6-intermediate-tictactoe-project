@@ -19,7 +19,7 @@
     </MenuBar>
   </top>
   <center>
-    <GridPane gridLinesVisible="true">
+    <GridPane fx:id="gameBoardGridPane" disable="true" gridLinesVisible="true">
       <Label fx:id="0" GridPane.rowIndex="0" GridPane.columnIndex="0" minHeight="150" minWidth="150" onMouseClicked="#handleClick"/>
       <Label fx:id="1" GridPane.rowIndex="0" GridPane.columnIndex="1" minHeight="150" minWidth="150" onMouseClicked="#handleClick"/>
       <Label fx:id="2" GridPane.rowIndex="0" GridPane.columnIndex="2" minHeight="150" minWidth="150" onMouseClicked="#handleClick"/>
