@@ -15,6 +15,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import pl.sda.poznan.Message;
+import pl.sda.poznan.MessageHeaders;
 import pl.sda.poznan.Transmission;
 import pl.sda.poznan.util.ResourceLoaderUtils;
 import pl.sda.poznan.viewmodel.ConnectionDialogViewModel;
@@ -70,7 +71,7 @@ public class MainWindowController {
       this.transmission = new Transmission(socket);
 
       transmission.sendObject(Message.builder()
-          .header("CONNECT")
+          .header(MessageHeaders.CONNECT)
           .data(viewModel.getPlayerName())
           .build());
 
