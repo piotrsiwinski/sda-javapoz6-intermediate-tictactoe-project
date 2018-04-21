@@ -89,10 +89,16 @@ public class MainWindowController {
             switch (message.getHeader()) {
               case MessageHeaders.WAITING_FOR_SECOND_CLIENT: {
                 Platform.runLater(() -> this.logTextArea
-                    .setText(logTextArea.getText() + "Czekam na drugiego gracza"));
+                    .setText(logTextArea.getText() + "Czekam na drugiego gracza\n"));
                 transmission.sendObject(Message.builder()
                     .header(MessageHeaders.NOTIFY_ON_SECOND_CLIENT)
                     .build());
+                break;
+              }
+              case MessageHeaders.STARTING_GAME: {
+                Platform.runLater(() -> this.logTextArea
+                    .setText(logTextArea.getText() + "Gra sie rozpoczyna\n"));
+                break;
               }
             }
           } catch (ClassNotFoundException e) {

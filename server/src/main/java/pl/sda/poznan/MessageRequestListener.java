@@ -12,26 +12,42 @@ public class MessageRequestListener implements RequestListener {
 
   @Override
   public Message onMessageReceived(Message request) {
-    // zrobic switch case po naglowku wiadomosci i wyslac ten komunikat tylko jesli wiadomosc zaczyna sie od connect
-    // obiekt game zawiera pole isFirstPlayerConnected
-    // jesli nie -> to odsylamy wiadomosc WAITING_FOR_SECOND_CLIENT i ustawiamy zmienna na true
-    switch (request.getHeader()) {
-      case MessageHeaders.CONNECT: {
-        if (!game.isFirstPlayerConnected()) {
+    synchronized (game) {
+      switch (request.getHeader()) {
+        case MessageHeaders.CONNECT: {
+          if (!game.isFirstPlayerConnected()) {
+            game.setFirstPlayerConnected(true);
+            return Message.builder()
+                .header(MessageHeaders.WAITING_FOR_SECOND_CLIENT)
+                .build();
+          } else {
+            game.setGameStarted(true);
+            game.notify();
+            return Message.builder()
+                .header(MessageHeaders.STARTING_GAME)
+                .playerSign(PlayerConstants.O_PLAYER_SIGN)
+                .data(PlayerConstants.X_PLAYER_SIGN.toString())
+                .build();
+          }
+        }
+        case MessageHeaders.NOTIFY_ON_SECOND_CLIENT: {
+          try {
+            while (!game.isGameStarted()) {
+              game.wait();
+            }
+          } catch (InterruptedException e) {
+          }
           return Message.builder()
-              .header(MessageHeaders.WAITING_FOR_SECOND_CLIENT)
+              .header(MessageHeaders.STARTING_GAME)
+              .playerSign(PlayerConstants.X_PLAYER_SIGN)
+              .data(PlayerConstants.X_PLAYER_SIGN.toString())
               .build();
-        } else {
-
         }
       }
+      return Message.builder()
+          .header("Hello")
+          .data("World")
+          .build();
     }
-
-
-
-    return Message.builder()
-        .header("Hello")
-        .data("World")
-        .build();
   }
 }
