@@ -9,5 +9,7 @@ public class MessageHeaders {
   public static final String MOVE = "MOVE";
   public static final String NOTIFY_ON_OPPONENT_MOVE = "NOTIFY_ON_OPPONENT_MOVE";
   public static final String CORRECT_MOVE = "CORRECT_MOVE";
-  public static final String WINNER = "WINNER ";
+  public static final String WINNER = "WINNER";
+  public static final String GAME_LOST = "GAME_LOST";
+  public static final String OPPONENT_MOVED = "OPPONENT_MOVED";
 }

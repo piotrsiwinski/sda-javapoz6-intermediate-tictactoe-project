@@ -44,6 +44,22 @@ public class MessageRequestListener implements RequestListener {
               .data(PlayerConstants.X_PLAYER_SIGN.toString())
               .build();
         }
+        case MessageHeaders.NOTIFY_ON_OPPONENT_MOVE: {
+          try {
+            game.wait();
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+          if (game.isGameEnded()) {
+            return Message.builder()
+                .header(MessageHeaders.GAME_LOST)
+                .build();
+          }
+          return Message.builder()
+              .header(MessageHeaders.OPPONENT_MOVED)
+              .data(Integer.toString(game.getLastPosition()))
+              .build();
+        }
         case MessageHeaders.MOVE: {
           Message message = handleGameStatus(request);
           game.notify();
@@ -69,5 +85,6 @@ public class MessageRequestListener implements RequestListener {
             .header(MessageHeaders.WINNER)
             .build();
     }
+    throw new RuntimeException("Bad game status");
   }
 }
