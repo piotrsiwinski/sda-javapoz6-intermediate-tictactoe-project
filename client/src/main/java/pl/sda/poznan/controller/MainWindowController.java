@@ -16,6 +16,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import pl.sda.poznan.Message;
 import pl.sda.poznan.MessageHeaders;
@@ -28,9 +29,12 @@ public class MainWindowController {
 
   private final Logger logger = Logger.getLogger(getClass().getName());
   private Transmission transmission;
+  private Character playerSign;
+
+  @FXML
+  private BorderPane mainWindowBorderPane;
   @FXML
   private Label logTextArea;
-  private Character playerSign;
 
   @FXML
   private GridPane gameBoardGridPane;
@@ -119,7 +123,28 @@ public class MainWindowController {
                   gameBoardGridPane.setDisable(false);
                 } else {
                   appendToLogLabel("Kolej przeciwnika");
+                  transmission.sendObject(Message.builder()
+                      .header(MessageHeaders.NOTIFY_ON_OPPONENT_MOVE)
+                      .build());
                 }
+                break;
+              }
+              case MessageHeaders.CORRECT_MOVE: {
+                transmission.sendObject(Message.builder()
+                    .header(MessageHeaders.NOTIFY_ON_OPPONENT_MOVE)
+                    .build());
+                appendToLogLabel("Poprawny ruch. Kolej przeciwnika");
+                break;
+              }
+              case MessageHeaders.OPPONENT_MOVED: {
+                Platform.runLater(() -> {
+                  appendToLogLabel("Przeciwnik się ruszył. Twoja kolej");
+                  gameBoardGridPane.setDisable(false);
+                  // znajdz pole na ktore wpisal cos przeciwnik
+                  String field = message.getData();
+                  Label label = (Label) this.mainWindowBorderPane.getScene().lookup("#" + field);
+                  label.setText(Character.toString(playerSign == 'X' ? 'O' : 'X'));
+                });
                 break;
               }
             }

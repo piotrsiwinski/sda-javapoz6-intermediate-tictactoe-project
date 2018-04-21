@@ -6,7 +6,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.VBox?>
-<BorderPane fx:controller="pl.sda.poznan.controller.MainWindowController"
+<BorderPane fx:id="mainWindowBorderPane"
+  fx:controller="pl.sda.poznan.controller.MainWindowController"
   xmlns:fx="http://javafx.com/fxml">
 
   <top>
