@@ -6,7 +6,9 @@ import java.net.Socket;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -24,6 +26,8 @@ public class MainWindowController {
 
   private final Logger logger = Logger.getLogger(getClass().getName());
   private Transmission transmission;
+  @FXML
+  private Label logTextArea;
 
   public void handleClick(MouseEvent mouseEvent) {
     Label source = (Label) mouseEvent.getSource();
@@ -58,39 +62,57 @@ public class MainWindowController {
   }
 
   public void connectToServer(ConnectionDialogViewModel viewModel) {
-    logger.log(Level.INFO, String.format(
-        "Trying to connect to server at address %s with username %s", viewModel.getServerAddress(),
-        viewModel.getPlayerName()));
-    String[] address = viewModel.getServerAddress().split(":");
-    String host = address[0];
-    int port = Integer.parseInt(address[1]);
-    // todo: add server address validation - display error dialog if sth is wrong
-    try {
-      Socket socket = new Socket();
-      socket.connect(new InetSocketAddress(host, port));
-      this.transmission = new Transmission(socket);
-
-      transmission.sendObject(Message.builder()
-          .header(MessageHeaders.CONNECT)
-          .data(viewModel.getPlayerName())
-          .build());
-
+    Thread clientThread = new Thread(() -> {
+      logger.log(Level.INFO, String.format(
+          "Trying to connect to server at address %s with username %s",
+          viewModel.getServerAddress(),
+          viewModel.getPlayerName()));
+      String[] address = viewModel.getServerAddress().split(":");
+      String host = address[0];
+      int port = Integer.parseInt(address[1]);
+      // todo: add server address validation - display error dialog if sth is wrong
       try {
-        Object o = transmission.readObject();
-        Message message = (Message) o;
-        logger.info(String.format("Received message %s", message.getHeader()));
-      } catch (ClassNotFoundException e) {
-        e.printStackTrace();
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress(host, port));
+        this.transmission = new Transmission(socket);
+
+        transmission.sendObject(Message.builder()
+            .header(MessageHeaders.CONNECT)
+            .data(viewModel.getPlayerName())
+            .build());
+        while (true) {
+          try {
+            Object o = transmission.readObject();
+            Message message = (Message) o;
+            logger.info(String.format("Received message %s", message.getHeader()));
+
+            switch (message.getHeader()) {
+              case MessageHeaders.WAITING_FOR_SECOND_CLIENT: {
+                Platform.runLater(() -> this.logTextArea
+                    .setText(logTextArea.getText() + "Czekam na drugiego gracza"));
+                transmission.sendObject(Message.builder()
+                    .header(MessageHeaders.NOTIFY_ON_SECOND_CLIENT)
+                    .build());
+              }
+            }
+          } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+          }
+
+        }
+      } catch (IOException e) {
+        logger.log(Level.INFO, "Cannot connect to server: " + e.getMessage());
+        // todo: wyswietl okno z napisem "Nie udalo sie podlaczyc do serwera"
+        // Skorzystaj z obiektu Alert
+        Platform.runLater(() -> {
+          Alert alert = new Alert(AlertType.ERROR);
+          alert.setTitle("Błąd");
+          alert.setContentText("Nie udało się połączyć z serwerem");
+          alert.showAndWait();
+        });
       }
-    } catch (IOException e) {
-      logger.log(Level.INFO, "Cannot connect to server: " + e.getMessage());
-      // todo: wyswietl okno z napisem "Nie udalo sie podlaczyc do serwera"
-      // Skorzystaj z obiektu Alert
-      Alert alert = new Alert(AlertType.ERROR);
-      alert.setTitle("Błąd");
-      alert.setContentText("Nie udało się połączyć z serwerem");
-      alert.showAndWait();
-    }
+    });
+    clientThread.start();
   }
 
 }

@@ -6,6 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import pl.sda.poznan.model.Game;
 
 public class Server {
 
@@ -14,6 +15,7 @@ public class Server {
   public static final int DEFAULT_PORT = 5000;
   private static final String DEFAULT_HOST_NAME = "localhost";
   private ServerSocket serverSocket;
+  private Game game = new Game();
 
   /**
    * Creates server with default port = 5000 and listens on localhost
@@ -51,7 +53,7 @@ public class Server {
     Thread clientThread = new Thread(() -> {
     try {
       Worker worker = new Worker(socket);
-      worker.setRequestListener(new MessageRequestListener());
+      worker.setRequestListener(new MessageRequestListener(game));
       worker.startCommunication();
     } catch (IOException | ClassNotFoundException e) {
       logger.info("Error on client thread" + e.getMessage());
