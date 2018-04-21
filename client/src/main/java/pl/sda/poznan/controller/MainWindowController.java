@@ -16,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import pl.sda.poznan.Message;
 import pl.sda.poznan.Transmission;
+import pl.sda.poznan.util.ResourceLoaderUtils;
 import pl.sda.poznan.viewmodel.ConnectionDialogViewModel;
 
 public class MainWindowController {
@@ -33,7 +34,7 @@ public class MainWindowController {
    */
   public void connectToServerAction(ActionEvent actionEvent) {
     FXMLLoader fxmlLoader = new FXMLLoader();
-    fxmlLoader.setLocation(getClass().getResource("ConnectionDialogWindow.fxml"));
+    fxmlLoader.setLocation(ResourceLoaderUtils.getResource("view/ConnectionDialogWindow.fxml"));
 
     Dialog<ButtonType> dialog = new Dialog<>();
     dialog.setTitle("Połącz do serwera");
